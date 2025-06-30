@@ -35,6 +35,23 @@ export default function HomePage() {
   // 控制是否启用6次查询后自动认为支付成功的逻辑
   const AUTO_SUCCESS_AFTER_6_QUERIES = false;
 
+  // 存储当前使用的设备ID（仅在客户端存储，用于标识）
+  const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
+
+  // 获取或生成设备ID
+  const getDeviceId = () => {
+    if (currentDeviceId) return currentDeviceId;
+
+    // 从 localStorage 获取设备ID（仅用于标识，不存储敏感信息）
+    let deviceId = localStorage.getItem('deviceId');
+    if (!deviceId) {
+      deviceId = `WMZS_TEST_${Date.now()}`;
+      localStorage.setItem('deviceId', deviceId);
+    }
+    setCurrentDeviceId(deviceId);
+    return deviceId;
+  };
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -239,106 +256,92 @@ export default function HomePage() {
     }
   };
 
-  // 直接支付（先激活获取有效终端信息，然后签到更新密钥）
+  // 直接支付（优化版：使用缓存策略，保持原始密钥）
   const handleDirectPayment = async (payway: string) => {
     setLoading(true);
     setResult(null);
     setQrCode('');
 
     try {
-      // 步骤1：激活终端获取有效的终端信息
-      setResult({
-        type: 'info',
-        message: '正在激活终端...',
-      });
+      const deviceId = getDeviceId();
 
-      const activateResponse = await fetch('/api/sqb-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'activate',
-        }),
-      });
-
-      const activateResult = await activateResponse.json();
-      console.log('激活响应:', activateResult); // 调试信息
-
-      if (!activateResult.success) {
-        throw new Error(`激活失败: ${activateResult.message}`);
-      }
-
-      const { deviceId, terminalData } = activateResult.data;
-      console.log('终端数据:', terminalData); // 调试信息
-
-      // 根据收钱吧API文档，激活成功后终端信息在 biz_response 中
-      const { terminal_sn, terminal_key } = terminalData.biz_response || terminalData;
-      console.log('解析的终端信息:', { terminal_sn, terminal_key, deviceId }); // 调试信息
-
-      // 步骤2：签到更新终端密钥
-      setResult({
-        type: 'info',
-        message: '正在签到更新密钥...',
-      });
-
-      console.log('准备签到，参数:', { terminal_sn, terminal_key, deviceId }); // 调试信息
-
-      const checkinResponse = await fetch('/api/sqb-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'checkin',
-          terminalSn: terminal_sn,  // 传递终端序列号
-          terminalKey: terminal_key, // 传递终端密钥
-          deviceId: deviceId,       // 传递设备ID
-        }),
-      });
-
-      const checkinResult = await checkinResponse.json();
-      if (!checkinResult.success) {
-        throw new Error(`签到失败: ${checkinResult.message}`);
-      }
-
-      // 获取签到后的最新终端密钥
-      // 根据官方文档，签到成功后会在 biz_response 中返回新的 terminal_key
-      const updatedTerminalKey = checkinResult.data.checkinData?.biz_response?.terminal_key ||
-                                 checkinResult.data.checkinData?.terminal_key ||
-                                 terminal_key;
-
-      // 更新终端信息
-      setTerminalInfo({
-        terminal_sn,
-        terminal_key: updatedTerminalKey,
-        device_id: deviceId,
-      });
-
-      // 步骤3：创建支付订单
       setResult({
         type: 'info',
         message: '正在创建支付订单...',
       });
 
-      const clientSn = `ORDER_${Date.now()}`;
-      const amount = selectedProduct ? selectedProduct.price * 100 : 1;
-      const subject = selectedProduct ? selectedProduct.name : '景德瓷测试支付';
-
-      const paymentResponse = await fetch('/api/sqb-demo', {
+      // 使用新的 Redis API 创建支付
+      const paymentResponse = await fetch('/api/sqb-redis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create_payment',
-          terminalSn: terminal_sn,
-          terminalKey: updatedTerminalKey, // 使用最新的终端密钥
-          clientSn: clientSn,
-          amount: amount,
-          subject: subject,
+          deviceId: deviceId,
+          amount: selectedProduct.price * 100, // 转换为分
+          subject: selectedProduct.name,
           payway: payway,
         }),
       });
 
       const paymentResult = await paymentResponse.json();
 
-      if (paymentResult.success && paymentResult.data.paymentData.result_code === '200') {
+      if (paymentResult.code !== 0) {
+        // 如果失败可能是因为终端不存在，尝试激活
+        if (paymentResult.message?.includes('终端信息不存在')) {
+          setResult({
+            type: 'info',
+            message: '正在激活终端...',
+          });
+
+          const activateResponse = await fetch('/api/sqb-redis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'activate',
+              deviceId: deviceId,
+            }),
+          });
+
+          const activateResult = await activateResponse.json();
+          if (activateResult.code !== 0) {
+            throw new Error(`激活失败: ${activateResult.message}`);
+          }
+
+          // 激活成功后重新创建支付
+          setResult({
+            type: 'info',
+            message: '正在创建支付订单...',
+          });
+
+          const retryPaymentResponse = await fetch('/api/sqb-redis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'create_payment',
+              deviceId: deviceId,
+              amount: selectedProduct.price * 100,
+              subject: selectedProduct.name,
+              payway: payway,
+            }),
+          });
+
+          const retryPaymentResult = await retryPaymentResponse.json();
+          if (retryPaymentResult.code !== 0) {
+            throw new Error(`创建支付订单失败: ${retryPaymentResult.message}`);
+          }
+
+          // 使用重试的结果
+          Object.assign(paymentResult, retryPaymentResult);
+        } else {
+          throw new Error(`创建支付订单失败: ${paymentResult.message}`);
+        }
+      }
+
+      // 支付订单创建成功
+      if (paymentResult.code === 0 && paymentResult.data.paymentData.result_code === '200') {
         const { qr_code, sn } = paymentResult.data.paymentData.biz_response.data;
+        const clientSn = paymentResult.data.clientSn;
+
         setQrCode(qr_code);
         setOrderInfo({
           client_sn: clientSn,
@@ -348,6 +351,13 @@ export default function HomePage() {
           type: 'success',
           message: `${payway === '2' ? '支付宝' : '微信'}支付订单创建成功！请扫描二维码支付`,
           data: paymentResult.data,
+        });
+
+        // 设置终端信息状态（用于显示）
+        setTerminalInfo({
+          terminal_sn: 'Redis缓存',
+          terminal_key: '安全存储',
+          device_id: deviceId,
         });
       } else {
         throw new Error(paymentResult.message || '创建支付订单失败');
@@ -364,7 +374,7 @@ export default function HomePage() {
 
   // 查询支付状态
   const handleQueryPayment = async () => {
-    if (!terminalInfo || !orderInfo) {
+    if (!orderInfo) {
       setResult({
         type: 'error',
         message: '请先创建支付订单',
@@ -375,22 +385,20 @@ export default function HomePage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/sqb-demo', {
+      const response = await fetch('/api/sqb-redis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           action: 'query_payment',
-          terminalSn: terminalInfo.terminal_sn,
-          terminalKey: terminalInfo.terminal_key,
           clientSn: orderInfo.client_sn,
         }),
       });
 
       const result = await response.json();
 
-      if (result.success && result.data.queryData.result_code === '200') {
+      if (result.code === 0 && result.data.queryData.result_code === '200') {
         const orderStatus = result.data.queryData.biz_response.data.order_status;
         let message = '';
         let type: 'success' | 'error' | 'info' = 'info';
@@ -455,73 +463,89 @@ export default function HomePage() {
     setQueryCount(0); // 重置查询计数
 
     try {
-      // 1. 激活终端
-      const activateResponse = await fetch('/api/sqb-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'activate' }),
-      });
-      const activateResult = await activateResponse.json();
+      const deviceId = getDeviceId();
+      const payway = method === 'wechat' ? '3' : '2';
 
-      if (!activateResult.success || activateResult.data.terminalData.result_code !== '200') {
-        throw new Error('终端激活失败');
-      }
-
-      const { terminal_sn, terminal_key } = activateResult.data.terminalData.biz_response;
-      const deviceId = activateResult.data.deviceId;
-
-      // 2. 签到
-      setPaymentStatus('正在...');
-      const checkinResponse = await fetch('/api/sqb-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'checkin',
-          terminalSn: terminal_sn,
-          terminalKey: terminal_key,
-          deviceId: deviceId,
-        }),
-      });
-
-      // 3. 创建支付订单
+      // 使用新的 Redis API 创建支付
       setPaymentStatus('正在创建支付订单...');
-      const clientSn = `ORDER_${Date.now()}`;
-      const amount = selectedProduct ? selectedProduct.price * 100 : 1;
-      const subject = selectedProduct ? selectedProduct.name : '景德瓷测试支付';
-
-      const paymentResponse = await fetch('/api/sqb-demo', {
+      const paymentResponse = await fetch('/api/sqb-redis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create_payment',
-          terminalSn: terminal_sn,
-          terminalKey: terminal_key,
-          clientSn: clientSn,
-          amount: amount,
-          subject: subject,
-          payway: method === 'wechat' ? '3' : '2',
+          deviceId: deviceId,
+          amount: selectedProduct ? selectedProduct.price * 100 : 1,
+          subject: selectedProduct ? selectedProduct.name : '景德瓷测试支付',
+          payway: payway,
         }),
       });
 
       const paymentResult = await paymentResponse.json();
 
-      if (paymentResult.success && paymentResult.data.paymentData.result_code === '200') {
+      if (paymentResult.code !== 0) {
+        // 如果失败可能是因为终端不存在，尝试激活
+        if (paymentResult.message?.includes('终端信息不存在')) {
+          setPaymentStatus('正在激活终端...');
+          const activateResponse = await fetch('/api/sqb-redis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'activate',
+              deviceId: deviceId,
+            }),
+          });
+
+          const activateResult = await activateResponse.json();
+          if (activateResult.code !== 0) {
+            throw new Error(`激活失败: ${activateResult.message}`);
+          }
+
+          // 激活成功后重新创建支付
+          setPaymentStatus('正在创建支付订单...');
+          const retryResponse = await fetch('/api/sqb-redis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'create_payment',
+              deviceId: deviceId,
+              amount: selectedProduct ? selectedProduct.price * 100 : 1,
+              subject: selectedProduct ? selectedProduct.name : '景德瓷测试支付',
+              payway: payway,
+            }),
+          });
+
+          const retryResult = await retryResponse.json();
+          if (retryResult.code !== 0) {
+            throw new Error(`创建支付订单失败: ${retryResult.message}`);
+          }
+
+          // 使用重试的结果
+          Object.assign(paymentResult, retryResult);
+        } else {
+          throw new Error(`创建支付订单失败: ${paymentResult.message}`);
+        }
+      }
+
+      // 支付订单创建成功
+      if (paymentResult.code === 0 && paymentResult.data.paymentData.result_code === '200') {
         const { qr_code, sn } = paymentResult.data.paymentData.biz_response.data;
+        const clientSn = paymentResult.data.clientSn;
+
         setQrCode(qr_code);
         setOrderInfo({
           client_sn: clientSn,
           order_sn: sn,
         });
         setTerminalInfo({
-          terminal_sn,
-          terminal_key,
+          terminal_sn: 'Redis缓存',
+          terminal_key: '安全存储',
           device_id: deviceId,
         });
         setPaymentStatus('请扫描二维码支付');
         setLoading(false);
 
         // 开始定时查询支付状态
-        startStatusCheck(terminal_sn, terminal_key, clientSn);
+        startStatusCheck(clientSn);
       } else {
         throw new Error(paymentResult.message || '创建支付订单失败');
       }
@@ -532,7 +556,7 @@ export default function HomePage() {
   };
 
   // 开始定时查询支付状态
-  const startStatusCheck = (terminalSn: string, terminalKey: string, clientSn: string) => {
+  const startStatusCheck = (clientSn: string) => {
     setQueryCount(0); // 重置查询计数
     const interval = setInterval(async () => {
       try {
@@ -552,20 +576,18 @@ export default function HomePage() {
           return newCount;
         });
 
-        const response = await fetch('/api/sqb-demo', {
+        const response = await fetch('/api/sqb-redis', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'query_payment',
-            terminalSn: terminalSn,
-            terminalKey: terminalKey,
             clientSn: clientSn,
           }),
         });
 
         const result = await response.json();
 
-        if (result.success && result.data.queryData.result_code === '200') {
+        if (result.code === 0 && result.data.queryData.result_code === '200') {
           const orderStatus = result.data.queryData.biz_response.data.order_status;
 
           if (orderStatus === 'PAID') {
@@ -1132,6 +1154,8 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+
     </div>
   );
 }
