@@ -21,7 +21,8 @@ const withMDX = mdx({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // 暂时移除 standalone 输出以解决构建问题
+  // output: "standalone",
   reactStrictMode: false,
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   // 禁用 SWC 以解决 Windows 兼容性问题
