@@ -1,0 +1,52 @@
+import { respData, respErr, respUnauthorized } from "@/lib/resp";
+import { getUserUuid, isUserAdmin } from "@/services/user";
+import { log } from "@/lib/logger";
+import { getResourcesList } from "@/models/resource";
+
+// GET /api/admin/resources - 获取管理后台资源列表
+export async function GET(req: Request) {
+  try {
+    const user_uuid = await getUserUuid();
+    if (!user_uuid) {
+      return respUnauthorized("用户未登录");
+    }
+
+    // 检查管理员权限
+    const isAdmin = await isUserAdmin();
+    if (!isAdmin) {
+      return respUnauthorized("无管理员权限");
+    }
+
+    const { searchParams } = new URL(req.url);
+    
+    const params = {
+      category: searchParams.get('category') || undefined,
+      tags: searchParams.get('tags')?.split(',').filter(Boolean) || undefined,
+      search: searchParams.get('search') || undefined,
+      sort: searchParams.get('sort') || 'latest',
+      status: searchParams.get('status') || undefined, // 管理员可以查看所有状态
+      author_id: searchParams.get('author_id') || undefined,
+      offset: parseInt(searchParams.get('offset') || '0'),
+      limit: Math.min(parseInt(searchParams.get('limit') || '20'), 100), // 最大100条
+    };
+
+    log.info("获取管理后台资源列表", { user_uuid, ...params });
+
+    const resources = await getResourcesList(params);
+
+    return respData({
+      resources,
+      total: resources.length,
+      offset: params.offset,
+      limit: params.limit
+    });
+
+  } catch (error) {
+    log.error("获取管理后台资源列表失败", error as Error, {
+      user_uuid: await getUserUuid().catch(() => 'unknown'),
+      endpoint: "/api/admin/resources"
+    });
+
+    return respErr("获取资源列表失败，请稍后再试");
+  }
+}

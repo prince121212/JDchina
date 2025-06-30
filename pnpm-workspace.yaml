@@ -1,0 +1,12 @@
+packages:
+  - "."
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - workerd
+
+# 解决 Windows 系统上 pnpm 符号链接问题
+node-linker: hoisted
+symlinks: false
+prefer-symlinked-executables: false

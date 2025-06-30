@@ -1,0 +1,638 @@
+{
+  "template": "shipany-template-one",
+  "theme": "light",
+  "header": {
+    "brand": {
+      "title": "文明知识库",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "文明知识库"
+      },
+      "url": "/zh"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "资源库",
+          "url": "/resources",
+          "icon": "HiOutlineCollection"
+        },
+        {
+          "title": "分类",
+          "url": "/categories",
+          "icon": "HiOutlineFolder"
+        },
+        {
+          "title": "标签",
+          "url": "/tags",
+          "icon": "HiOutlineTag"
+        },
+        {
+          "title": "更多资讯",
+          "url": "/#showcase",
+          "icon": "BiCube",
+          "children": [
+            {
+              "title": "博客",
+              "description": "博客和新闻",
+              "icon": "RiArticleLine",
+              "url": "/posts",
+              "target": "_blank"
+            }
+          ]
+        }
+      ]
+    },
+    "buttons": [],
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true
+  },
+  "hero": {
+    "title": "发现、分享、学习优质文化资源",
+    "highlight_text": "优质文化资源",
+    "description": "汇聚全球优质文化资源，为学习者和创作者提供丰富的知识宝库",
+
+    "buttons": [],
+    "show_happy_users": false,
+    "show_badge": false
+  },
+  "branding": {
+    "disabled": true,
+    "title": "ShipAny 建立在巨人的肩膀上",
+    "items": [
+      {
+        "title": "Next.js",
+        "image": {
+          "src": "/imgs/logos/nextjs.svg",
+          "alt": "Next.js"
+        }
+      },
+      {
+        "title": "React",
+        "image": {
+          "src": "/imgs/logos/react.svg",
+          "alt": "React"
+        }
+      },
+      {
+        "title": "TailwindCSS",
+        "image": {
+          "src": "/imgs/logos/tailwindcss.svg",
+          "alt": "TailwindCSS"
+        }
+      },
+      {
+        "title": "Shadcn/UI",
+        "image": {
+          "src": "/imgs/logos/shadcn.svg",
+          "alt": "Shadcn/UI"
+        }
+      },
+      {
+        "title": "Vercel",
+        "image": {
+          "src": "/imgs/logos/vercel.svg",
+          "alt": "Vercel"
+        }
+      }
+    ]
+  },
+  "introduce": {
+    "name": "introduce",
+    "title": "什么是 ShipAny",
+    "label": "介绍",
+    "description": "ShipAny 是一个用于构建 AI SaaS 创业项目的 NextJS 模板，内置多种模板和组件。",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "items": [
+      {
+        "title": "即用型模板",
+        "description": "从数十个生产就绪的 AI SaaS 模板中选择，快速启动您的项目。",
+        "icon": "RiNextjsFill"
+      },
+      {
+        "title": "基础设施配置",
+        "description": "立即获取内置最佳实践的可扩展基础设施。",
+        "icon": "RiDatabase2Line"
+      },
+      {
+        "title": "快速部署",
+        "description": "在几小时内将您的 AI SaaS 应用部署到生产环境，而不是几天。",
+        "icon": "RiCloudyFill"
+      }
+    ]
+  },
+  "benefit": {
+    "name": "benefit",
+    "title": "为什么选择 ShipAny",
+    "label": "优势",
+    "description": "获取启动 AI 创业所需的一切 - 从即用型模板到技术支持。",
+    "items": [
+      {
+        "title": "完整框架",
+        "description": "基于 Next.js 构建，集成身份验证、支付和 AI 功能 - 一切开箱即用。",
+        "icon": "RiNextjsFill",
+        "image": {
+          "src": "/imgs/features/2.png"
+        }
+      },
+      {
+        "title": "丰富的模板库",
+        "description": "选择各种 AI SaaS 模板来启动您的项目 - 聊天机器人、图像生成等。",
+        "icon": "RiClapperboardAiLine",
+        "image": {
+          "src": "/imgs/features/3.png"
+        }
+      },
+      {
+        "title": "技术指导",
+        "description": "获得专门支持并加入我们的开发者社区，确保您成功启动。",
+        "icon": "RiCodeFill",
+        "image": {
+          "src": "/imgs/features/4.png"
+        }
+      }
+    ]
+  },
+  "usage": {
+    "name": "usage",
+    "title": "如何使用 ShipAny 启动项目",
+    "description": "通过三个简单步骤启动您的 AI SaaS 创业项目：",
+    "image": {
+      "src": "/imgs/features/1.png"
+    },
+    "image_position": "left",
+    "text_align": "center",
+    "items": [
+      {
+        "title": "获取 ShipAny",
+        "description": "一次性付款购买 ShipAny。查收邮件获取代码和文档。",
+        "image": {
+          "src": "/imgs/features/5.png"
+        }
+      },
+      {
+        "title": "开始您的项目",
+        "description": "阅读文档并克隆 ShipAny 代码。开始构建您的 AI SaaS 创业项目。",
+        "image": {
+          "src": "/imgs/features/6.png"
+        }
+      },
+      {
+        "title": "定制您的项目",
+        "description": "使用您的数据和内容修改模板。满足特定的 AI 功能需求。",
+        "image": {
+          "src": "/imgs/features/7.png"
+        }
+      },
+      {
+        "title": "部署到生产环境",
+        "description": "通过几个步骤将项目部署到生产环境，立即开始服务客户。",
+        "image": {
+          "src": "/imgs/features/8.png"
+        }
+      }
+    ]
+  },
+  "feature": {
+    "name": "feature",
+    "title": "ShipAny 核心功能",
+    "description": "快速高效启动 AI SaaS 创业所需的一切。",
+    "items": [
+      {
+        "title": "Next.js 模板",
+        "description": "生产就绪的 Next.js 模板，支持 SEO 友好结构和国际化。",
+        "icon": "RiNextjsFill"
+      },
+      {
+        "title": "身份验证和支付",
+        "description": "集成 Google OAuth、一键登录和 Stripe 支付处理。",
+        "icon": "RiKey2Fill"
+      },
+      {
+        "title": "数据基础设施",
+        "description": "内置 Supabase 集成，提供可靠和可扩展的数据存储。",
+        "icon": "RiDatabase2Line"
+      },
+      {
+        "title": "一键部署",
+        "description": "无缝部署到 Vercel 或 Cloudflare，自动化设置。",
+        "icon": "RiCloudy2Fill"
+      },
+      {
+        "title": "业务分析",
+        "description": "集成 Google Analytics 和 Search Console 追踪增长。",
+        "icon": "RiBarChart2Line"
+      },
+      {
+        "title": "AI 就绪基础设施",
+        "description": "预配置 AI 集成，内置积分系统和 API 销售。",
+        "icon": "RiRobot2Line"
+      }
+    ]
+  },
+  "showcase": {
+    "name": "showcase",
+    "title": "使用 ShipAny 构建的 AI SaaS 创业项目",
+    "description": "易于使用，快速发布。",
+    "items": [
+      {
+        "title": "ThinkAny",
+        "description": "AI 搜索引擎",
+        "url": "https://thinkany.ai",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/7.png"
+        }
+      },
+      {
+        "title": "HeyBeauty",
+        "description": "AI 虚拟试妆",
+        "url": "https://heybeauty.ai",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/5.png"
+        }
+      },
+      {
+        "title": "个人博客",
+        "description": "博客和新闻",
+        "url": "/posts",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/1.png"
+        }
+      },
+      {
+        "title": "GPTs Works",
+        "description": "GPTs 目录",
+        "url": "https://gpts.works",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/3.png"
+        }
+      },
+      {
+        "title": "Melodisco",
+        "description": "AI 音乐播放器",
+        "url": "https://melodis.co",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/4.png"
+        }
+      },
+      {
+        "title": "Pagen",
+        "description": "AI 落地页生成器",
+        "url": "https://pagen.so",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/6.png"
+        }
+      },
+      {
+        "title": "SoraFM",
+        "description": "AI 视频生成器",
+        "url": "https://sorafm.trys.ai",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/8.png"
+        }
+      },
+      {
+        "title": "PodLM",
+        "description": "AI 播客生成器",
+        "url": "https://podlm.ai",
+        "target": "_blank",
+        "image": {
+          "src": "/imgs/showcases/9.png"
+        }
+      }
+    ]
+  },
+  "stats": {
+    "name": "stats",
+    "disabled": true,
+    "label": "统计",
+    "title": "用户喜爱 ShipAny",
+    "description": "因为它易于使用且快速发布。",
+    "icon": "FaRegHeart",
+    "items": [
+      {
+        "title": "信任",
+        "label": "99+",
+        "description": "客户"
+      },
+      {
+        "title": "内置",
+        "label": "20+",
+        "description": "组件"
+      },
+      {
+        "title": "快速发布",
+        "label": "5",
+        "description": "分钟"
+      }
+    ]
+  },
+  "pricing": {
+    "name": "pricing",
+    "label": "定价",
+    "title": "定价",
+    "description": "获取 ShipAny 的所有功能，快速启动您的 AI SaaS 创业项目。",
+    "groups": [],
+    "items": [
+      {
+        "title": "入门版",
+        "description": "开始您的第一个 SaaS 创业项目。",
+        "features_title": "包含",
+        "features": [
+          "100 积分，有效期 1 个月",
+          "NextJS 模板",
+          "SEO 友好结构",
+          "Stripe 支付",
+          "Supabase 数据存储",
+          "Google OAuth 和一键登录",
+          "国际化支持"
+        ],
+        "interval": "one-time",
+        "amount": 9900,
+        "cn_amount": 69900,
+        "currency": "USD",
+        "price": "$99",
+        "original_price": "$199",
+        "unit": "USD",
+        "is_featured": false,
+        "tip": "一次付费，无限项目！",
+        "button": {
+          "title": "获取 ShipAny",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "starter",
+        "product_name": "ShipAny 模板入门版",
+        "credits": 100,
+        "valid_months": 1
+      },
+      {
+        "title": "标准版",
+        "description": "快速启动您的 SaaS 创业项目。",
+        "label": "热门",
+        "features_title": "包含入门版所有功能，另加",
+        "features": [
+          "200 积分，有效期 3 个月",
+          "Vercel 或 Cloudflare 部署",
+          "隐私和条款生成",
+          "Google Analytics 集成",
+          "Google Search Console 集成",
+          "Discord 社区",
+          "首次发布技术支持",
+          "终身更新"
+        ],
+        "interval": "one-time",
+        "amount": 19900,
+        "cn_amount": 139900,
+        "currency": "USD",
+        "price": "$199",
+        "original_price": "$299",
+        "unit": "USD",
+        "is_featured": true,
+        "tip": "一次付费，无限项目！",
+        "button": {
+          "title": "获取 ShipAny",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "standard",
+        "product_name": "ShipAny 模板标准版",
+        "credits": 200,
+        "valid_months": 3
+      },
+      {
+        "title": "高级版",
+        "description": "构建任何 AI SaaS 创业项目。",
+        "features_title": "包含标准版所有功能，另加",
+        "features": [
+          "300 积分，有效期 1 年",
+          "AI 业务功能",
+          "用户中心",
+          "积分系统",
+          "SaaS API 销售",
+          "管理系统",
+          "优先技术支持"
+        ],
+        "interval": "one-time",
+        "amount": 29900,
+        "cn_amount": 199900,
+        "currency": "USD",
+        "price": "$299",
+        "original_price": "$399",
+        "unit": "USD",
+        "is_featured": false,
+        "tip": "一次付费，无限项目！",
+        "button": {
+          "title": "获取 ShipAny",
+          "url": "/#pricing",
+          "icon": "RiFlashlightFill"
+        },
+        "product_id": "premium",
+        "product_name": "ShipAny 模板高级版",
+        "credits": 300,
+        "valid_months": 12
+      }
+    ]
+  },
+  "testimonial": {
+    "name": "testimonial",
+    "disabled": true,
+    "label": "用户评价",
+    "title": "用户如何评价 ShipAny",
+    "description": "听听使用 ShipAny 启动 AI 创业项目的开发者和创始人怎么说。",
+    "icon": "GoThumbsup",
+    "items": [
+      {
+        "title": "陈大卫",
+        "label": "AIWallpaper.shop 创始人",
+        "description": "ShipAny 为我们节省了数月的开发时间。我们仅用 2 天就启动了 AI 壁纸业务，一周内就获得了第一个付费客户！",
+        "image": {
+          "src": "/imgs/users/1.png"
+        }
+      },
+      {
+        "title": "金瑞秋",
+        "label": "HeyBeauty.ai 技术总监",
+        "description": "预构建的 AI 基础设施是一个游戏规则改变者。我们无需担心架构 - 只需专注于 AI 美容技术并快速上线。",
+        "image": {
+          "src": "/imgs/users/2.png"
+        }
+      },
+      {
+        "title": "马库斯",
+        "label": "独立开发者",
+        "description": "作为独立开发者，ShipAny 给了我所需的一切 - 身份验证、支付、AI 集成和漂亮的 UI。一个周末就启动了我的 SaaS！",
+        "image": {
+          "src": "/imgs/users/3.png"
+        }
+      },
+      {
+        "title": "索菲亚",
+        "label": "Melodisco CEO",
+        "description": "这些模板可直接用于生产且高度可定制。我们用几小时而不是几个月就建立了 AI 音乐平台。上市时间令人难以置信！",
+        "image": {
+          "src": "/imgs/users/4.png"
+        }
+      },
+      {
+        "title": "詹姆斯",
+        "label": "GPTs.works 技术主管",
+        "description": "ShipAny 的基础设施非常稳固。我们从 0 扩展到 1 万用户都没碰后端。这是我们 AI 创业最好的投资。",
+        "image": {
+          "src": "/imgs/users/5.png"
+        }
+      },
+      {
+        "title": "张安娜",
+        "label": "创业者",
+        "description": "从想法到上线只用了 3 天！ShipAny 的模板和部署工具让我们能够以令人难以置信的速度测试 AI 业务概念。",
+        "image": {
+          "src": "/imgs/users/6.png"
+        }
+      }
+    ]
+  },
+  "faq": {
+    "name": "faq",
+    "label": "常见问题",
+    "title": "关于 ShipAny 的常见问题",
+    "description": "还有其他问题？通过 Discord 或电子邮件联系我们。",
+    "items": [
+      {
+        "title": "ShipAny 究竟是什么，它是如何工作的？",
+        "description": "ShipAny 是一个专门为构建 AI SaaS 创业项目设计的综合性 NextJS 模板。它提供即用型模板、基础设施设置和部署工具，帮助您在几小时内而不是几天内启动 AI 业务。"
+      },
+      {
+        "title": "使用 ShipAny 需要高级技术技能吗？",
+        "description": "虽然基本的编程知识会有帮助，但 ShipAny 设计得非常开发者友好。我们的模板和文档使您即使不是 AI 或云基础设施专家也能轻松入门。"
+      },
+      {
+        "title": "我可以用 ShipAny 构建什么类型的 AI SaaS？",
+        "description": "ShipAny 支持广泛的 AI 应用，从内容生成到数据分析工具。我们的模板涵盖流行用例，如 AI 聊天机器人、内容生成器、图像处理应用等。"
+      },
+      {
+        "title": "使用 ShipAny 通常需要多长时间才能启动？",
+        "description": "使用 ShipAny，您可以在几小时内完成工作原型，并在几小时内完成生产就绪的应用。我们的一键部署和预配置基础设施显著缩短了传统的数月开发周期。"
+      },
+      {
+        "title": "ShipAny 的基础设施包括什么？",
+        "description": "ShipAny 提供完整的基础设施栈，包括身份验证、数据库设置、API 集成、支付处理和可扩展的云部署。一切都按照行业最佳实践预先配置。"
+      },
+      {
+        "title": "我可以自定义模板以匹配我的品牌吗？",
+        "description": "当然可以！所有 ShipAny 模板都完全可定制。您可以修改设计、功能和功能性以匹配您的品牌标识和特定业务需求，同时保持强大的底层基础设施。"
+      }
+    ]
+  },
+  "cta": {
+    "name": "cta",
+    "disabled": true,
+    "title": "启动您的第一个 AI SaaS 创业项目",
+    "description": "从这里开始，使用 ShipAny 启动。",
+    "buttons": [
+      {
+        "title": "获取 ShipAny",
+        "url": "https://shipany.ai",
+        "target": "_blank",
+        "icon": "GoArrowUpRight"
+      },
+      {
+        "title": "阅读文档",
+        "url": "https://docs.shipany.ai",
+        "target": "_blank",
+        "variant": "outline"
+      }
+    ]
+  },
+  "footer": {
+    "name": "footer",
+    "brand": {
+      "title": "文明知识库",
+      "description": "文明知识库是一个专注于文明资源分享的平台。通过丰富的资源和分类快速获取知识。",
+      "logo": {
+        "src": "/logo.png",
+        "alt": "文明知识库"
+      },
+      "url": "/"
+    },
+    "copyright": "© 2025 • 文明知识库 保留所有权利。",
+    "nav": {
+      "items": [
+        {
+          "title": "关于",
+          "children": [
+            {
+              "title": "热门资源",
+              "url": "/resources?sort=popular",
+              "target": "_self"
+            },
+            {
+              "title": "浏览分类",
+              "url": "/categories",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "资源",
+          "children": [
+            {
+              "title": "文明知识库",
+              "url": "https://wm985.top",
+              "target": "_blank"
+            }
+          ]
+        },
+        {
+          "title": "友情链接",
+          "children": [
+            {
+              "title": "文明知识库",
+              "url": "https://wm985.top",
+              "target": "_blank"
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "QQ",
+          "icon": "RiQqFill",
+          "url": "https://qm.qq.com/q/lfdZh1vQFG",
+          "target": "_blank"
+        },
+
+        {
+          "title": "邮箱",
+          "icon": "RiMailLine",
+          "url": "mailto:noreply@wm985.top",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "隐私政策",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "服务条款",
+          "url": "/terms-of-service"
+        }
+      ]
+    }
+  }
+}
