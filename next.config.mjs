@@ -1,14 +1,14 @@
 // 暂时移除所有全局变量设置，避免干扰React运行
 
-import bundleAnalyzer from "@next/bundle-analyzer";
+// import bundleAnalyzer from "@next/bundle-analyzer";
 import createNextIntlPlugin from "next-intl/plugin";
 import mdx from "@next/mdx";
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
+// const withBundleAnalyzer = bundleAnalyzer({
+//   enabled: process.env.ANALYZE === "true",
+// });
 
 const withNextIntl = createNextIntlPlugin();
 
@@ -24,6 +24,8 @@ const nextConfig = {
   output: "standalone",
   reactStrictMode: false,
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  // 禁用 SWC 以解决 Windows 兼容性问题
+  swcMinify: false,
   // 性能优化配置
   poweredByHeader: false,
   compress: true,
@@ -113,4 +115,4 @@ const configWithMDX = {
   },
 };
 
-export default withBundleAnalyzer(withNextIntl(withMDX(configWithMDX)));
+export default withNextIntl(withMDX(configWithMDX));
