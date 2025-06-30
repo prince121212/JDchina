@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import { NextAuthSessionProvider } from "@/auth/session";
 import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 
@@ -79,6 +80,7 @@ export default async function RootLayout({
             <AppContextProvider>
               <ThemeProvider attribute="class" disableTransitionOnChange>
                 {children}
+                <Toaster />
               </ThemeProvider>
             </AppContextProvider>
           </NextAuthSessionProvider>
