@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server';
 import { respData, respErr } from '@/lib/resp';
-import { 
-  activateTerminal, 
-  checkinTerminal, 
-  createPayment, 
-  queryPayment, 
-  generateDeviceId, 
-  SQB_CONFIG 
+import {
+  activateTerminal,
+  checkinTerminal,
+  createPayment,
+  queryPayment,
+  generateDeviceId,
+  diagnoseSQBConnection,
+  SQB_CONFIG
 } from '@/lib/sqb-utils';
 import { 
   storeTerminalInfo, 
@@ -27,6 +28,18 @@ export async function POST(req: NextRequest) {
   try {
     const { action, deviceId, clientSn, amount, subject, payway } = await req.json();
 
+    // 网络诊断不需要 Redis 连接
+    if (action === 'diagnose') {
+      log.info('开始网络诊断');
+
+      const result = await diagnoseSQBConnection();
+
+      return respData({
+        message: '网络诊断完成',
+        result: result,
+      });
+    }
+
     // 检查 Redis 连接状态
     const redisStatus = await getRedisStatus();
     if (!redisStatus.connected) {
@@ -42,7 +55,24 @@ export async function POST(req: NextRequest) {
         
         const result = await activateTerminal(newDeviceId, SQB_CONFIG.TEST_ACTIVATION_CODE);
 
+        // 添加调试日志
+        log.info('激活终端响应', {
+          success: result.success,
+          data: result.data,
+          status: result.status
+        });
+
         if (result.success) {
+          // 检查响应结构
+          if (!result.data || result.data.result_code !== '200' || !result.data.biz_response) {
+            log.error('激活响应结构异常', new Error(`激活失败: success=${result.success}, status=${result.status}, data=${JSON.stringify(result.data)}`), {
+              success: result.success,
+              status: result.status,
+              data: result.data
+            });
+            return respErr(`激活失败: ${result.data?.result_code || '未知错误'} - ${JSON.stringify(result.data)}`);
+          }
+
           const { terminal_sn, terminal_key } = result.data.biz_response;
           
           // 存储到 Redis
@@ -264,7 +294,7 @@ export async function POST(req: NextRequest) {
     }
 
   } catch (error) {
-    log.error('SQB Redis API 错误', { error: error as Error });
+    log.error('SQB Redis API 错误', error as Error);
     return respErr(`服务器错误: ${(error as Error).message}`);
   }
 }

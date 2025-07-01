@@ -399,30 +399,87 @@ export default function HomePage() {
       const result = await response.json();
 
       if (result.code === 0 && result.data.queryData.result_code === '200') {
-        const orderStatus = result.data.queryData.biz_response.data.order_status;
+        const bizResponse = result.data.queryData.biz_response;
         let message = '';
         let type: 'success' | 'error' | 'info' = 'info';
 
-        switch (orderStatus) {
-          case 'PAID':
-            message = '支付成功！';
-            type = 'success';
-            break;
-          case 'CREATED':
-            message = '订单已创建，等待支付';
-            type = 'info';
-            break;
-          case 'CANCELED':
-            message = '订单已取消';
-            type = 'error';
-            break;
-          case 'EXPIRED':
-            message = '订单已过期';
-            type = 'error';
-            break;
-          default:
-            message = `订单状态: ${orderStatus}`;
-            type = 'info';
+        // 检查 biz_response.result_code 是否为 FAIL
+        if (bizResponse.result_code === 'FAIL') {
+          // 根据 error_code 判断具体的失败原因
+          switch (bizResponse.error_code) {
+            case 'UPAY_ORDER_NOT_EXISTS':
+              message = '订单不存在或已过期';
+              break;
+            case 'TRADE_TIMEOUT':
+              message = '交易超时';
+              break;
+            case 'TRADE_FAILED':
+              message = '交易失败';
+              break;
+            default:
+              message = `查询失败: ${bizResponse.error_message || bizResponse.error_code}`;
+          }
+          type = 'error';
+        } else if (bizResponse.result_code === 'SUCCESS' && bizResponse.data) {
+          // 如果 biz_response.result_code 为 SUCCESS，则检查 order_status
+          const orderStatus = bizResponse.data.order_status;
+
+          switch (orderStatus) {
+            case 'PAID':
+              message = '支付成功！';
+              type = 'success';
+              break;
+            case 'CREATED':
+              message = '订单已创建，等待支付';
+              type = 'info';
+              break;
+            case 'PAY_CANCELED':
+              message = '支付失败，订单已取消';
+              type = 'error';
+              break;
+            case 'PAY_ERROR':
+              message = '支付异常，请联系客服确认';
+              type = 'error';
+              break;
+            case 'CANCELED':
+              message = '订单已取消';
+              type = 'error';
+              break;
+            case 'EXPIRED':
+              message = '订单已过期';
+              type = 'error';
+              break;
+            case 'REFUNDED':
+              message = '订单已全额退款';
+              type = 'info';
+              break;
+            case 'PARTIAL_REFUNDED':
+              message = '订单已部分退款';
+              type = 'info';
+              break;
+            case 'REFUND_INPROGRESS':
+              message = '退款进行中';
+              type = 'info';
+              break;
+            case 'REFUND_ERROR':
+              message = '退款异常';
+              type = 'error';
+              break;
+            case 'CANCEL_INPROGRESS':
+              message = '撤单进行中';
+              type = 'info';
+              break;
+            case 'CANCEL_ERROR':
+              message = '撤单异常';
+              type = 'error';
+              break;
+            default:
+              message = `订单状态: ${orderStatus}`;
+              type = 'info';
+          }
+        } else {
+          message = `未知响应状态: ${bizResponse.result_code}`;
+          type = 'error';
         }
 
         setResult({
@@ -588,20 +645,86 @@ export default function HomePage() {
         const result = await response.json();
 
         if (result.code === 0 && result.data.queryData.result_code === '200') {
-          const orderStatus = result.data.queryData.biz_response.data.order_status;
+          const bizResponse = result.data.queryData.biz_response;
 
-          if (orderStatus === 'PAID') {
-            setPaymentStatus('支付成功！');
-            setShowShippingForm(true);
+          // 检查 biz_response.result_code 是否为 FAIL
+          if (bizResponse.result_code === 'FAIL') {
+            let statusMessage = '';
+
+            // 根据 error_code 判断具体的失败原因
+            switch (bizResponse.error_code) {
+              case 'UPAY_ORDER_NOT_EXISTS':
+                statusMessage = '订单不存在或已过期';
+                break;
+              case 'TRADE_TIMEOUT':
+                statusMessage = '交易超时';
+                break;
+              case 'TRADE_FAILED':
+                statusMessage = '交易失败';
+                break;
+              default:
+                statusMessage = `查询失败: ${bizResponse.error_message || bizResponse.error_code}`;
+            }
+
+            setPaymentStatus(statusMessage);
             clearInterval(interval);
             setStatusCheckInterval(null);
-          } else if (orderStatus === 'CANCELED' || orderStatus === 'EXPIRED') {
-            setPaymentStatus(orderStatus === 'CANCELED' ? '订单已取消' : '订单已过期');
-            clearInterval(interval);
-            setStatusCheckInterval(null);
-          } else if (orderStatus === 'CREATED') {
-            // 显示当前查询次数
-            setPaymentStatus(`等待支付中... (${queryCount + 1}/6)`);
+            return;
+          }
+
+          // 如果 biz_response.result_code 为 SUCCESS，则检查 order_status
+          if (bizResponse.result_code === 'SUCCESS' && bizResponse.data) {
+            const orderStatus = bizResponse.data.order_status;
+
+            if (orderStatus === 'PAID') {
+              setPaymentStatus('支付成功！');
+              setShowShippingForm(true);
+              clearInterval(interval);
+              setStatusCheckInterval(null);
+            } else if (orderStatus === 'CREATED') {
+              // 只有 CREATED 状态才继续轮询，显示当前查询次数
+              setPaymentStatus(`等待支付中... (${queryCount}/6)`);
+            } else {
+              // 所有其他状态都停止轮询
+              let statusMessage = '';
+              switch (orderStatus) {
+                case 'PAY_CANCELED':
+                  statusMessage = '支付失败，订单已取消';
+                  break;
+                case 'PAY_ERROR':
+                  statusMessage = '支付异常，请联系客服确认';
+                  break;
+                case 'CANCELED':
+                  statusMessage = '订单已取消';
+                  break;
+                case 'EXPIRED':
+                  statusMessage = '订单已过期';
+                  break;
+                case 'REFUNDED':
+                  statusMessage = '订单已全额退款';
+                  break;
+                case 'PARTIAL_REFUNDED':
+                  statusMessage = '订单已部分退款';
+                  break;
+                case 'REFUND_INPROGRESS':
+                  statusMessage = '退款进行中';
+                  break;
+                case 'REFUND_ERROR':
+                  statusMessage = '退款异常';
+                  break;
+                case 'CANCEL_INPROGRESS':
+                  statusMessage = '撤单进行中';
+                  break;
+                case 'CANCEL_ERROR':
+                  statusMessage = '撤单异常';
+                  break;
+                default:
+                  statusMessage = `订单状态: ${orderStatus}`;
+              }
+              setPaymentStatus(statusMessage);
+              clearInterval(interval);
+              setStatusCheckInterval(null);
+            }
           }
         }
       } catch (error) {
